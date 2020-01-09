@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stark/static/bootstrap/css/bootstrap.min.css">
+    <script src="/stark/static/js/jquery-1.12.4.min.js"></script>
+    <script src="/stark/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/stark/static/js/setupAjax.js"></script>
+
+
+    <style>
+        .top1 {
+            margin-top: 15px;
+        }
+
+        .filter a {
+            text-decoration: none;
+            color: grey;
+        }
+
+        .active {
+            color: #28a4c9 !important;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container">
+    <h3>数据{{ model_name }}列表</h3>
+
+    <button id="but_b">跨域请求ajax</button>
+    <button onclick="foo()">+</button>
+
+
+    <div class="row">
+        <div class="col-lg-9 col-md-9 top1">
+            <a href="{{ show_list.config.get_add_url }}" class="btn btn-primary">添加数据</a>
+            {% if show_list.config.search_fields %}
+                <form novalidate action="" class="pull-right">
+                    <input name="q" class="form-control-static" type="text" value="{{ show_list.config.key }}"
+                           placeholder="Search for...">
+                    <button class="btn btn-default" type="submit">Go!</button>
+                </form>
+            {% endif %}
+
+            <form novalidate action="" method="post">
+                {% csrf_token %}
+                <select name="action" id="" style="width: 135px; padding: 5px 8px; display: inline-block">
+                    <option value="">---------------</option>
+                    {% for action in show_list.get_action_list %}
+                        <option value="{{ action.name }}">{{ action.desc }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-default">go!</button>
+                <!-- 列表 -->
+                <table class="table table-bordered table-striped top1">
+                    <thead>
+                    <tr>
+                        {% for header in show_list.get_header_list %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in show_list.get_data %}
+                        <tr>
+                            {% for item in data %}
+                                <td>
+                                    {{ item }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <!-- 分页 -->
+                <nav aria-label="Page navigation" class="pull-right">
+                    <ul class="pagination">
+                        {{ show_list.page_obj.page_html|safe }}
+                    </ul>
+                </nav>
+
+            </form>
+        </div>
+        <!-- 筛选框 -->
+        {% if show_list.get_filter_linktags %}
+            <div class="panel panel-primary col-md-3 col-lg-3">
+                <div class="panel-heading ">
+                    <h3 class="panel-title">title</h3>
+                </div>
+                {% for filter, linktags in show_list.get_filter_linktags.items %}
+                    <div class="well panel-body filter">
+                        <p>{{ filter.upper }}</p>
+                        {% for tag in linktags %}
+                            <p>{{ tag|safe }}</p>
+                        {% endfor %}
+                    </div>
+
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+
+    <!-- 模态框 -->
+    <div class="modal fade" id="id_del" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">是否确认删除该书籍</h4>
+                </div>
+                <div class="modal-body">
+                    书籍编写不易，请三思而后行！！
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" id="bnt_del">删除</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="bnt_cls">返回</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(".record").click(function () {
+        record_id = $(this).attr("record_id");
+        obj_id = $(this).attr("obj_id");
+        $.ajax({
+            url: 'record/',
+            type: 'post',
+            data: {
+                'record_id':record_id,
+                'obj_id':obj_id
+            },
+            success: function (data) {
+                if (data.status) {
+                    alert(data.msg)
+                } else {
+                    location.href = data.msg;
+                }
+            }
+        })
+
+    });
+
+    $("#choice").click(function () {
+        if ($(this).prop("checked")) {
+            $(".choice_itme").prop("checked", true)
+        } else
+            $(".choice_itme").prop("checked", false)
+
+    });
+
+    function alex(arg) {
+        data = JSON.parse(arg);
+        console.log(typeof data);
+        console.log(data.name);
+    }
+
+    function get_jsonp(url) {
+        var $scr_els = $("<script>");
+        $scr_els.attr("src", url);
+        $scr_els.attr("id", "jsonp");
+        $("body").append($scr_els);
+        $("#jsonp").remove()
+    }
+
+    $("#but_b").click(function () {
+        {#alert(123);#}
+        $.ajax({
+            url: 'http://127.0.0.1:8001/query/',
+            type: 'get',
+            {#dataType:"cors",#}
+            success: function (data) {
+                console.log(data);
+                console.log(typeof data)
+            }
+
+        })
+    });
+
+    $("#but_b_2").click(function () {
+        {#get_jsonp('http://127.0.0.1:8001/query/');#}
+        get_jsonp('http://127.0.0.1:8001/query/?callback=alex');
+    });
+    //  最终版本
+    $("#but_b_3").click(function () {
+        $.ajax({
+            url: "http://www.jxntv.cn/data/jmd-jxtv2.html",
+            // url: "http://127.0.0.1:8001/query/",
+            type: "get",
+            dataType: "jsonp",  //  位置ajax請求
+            jsonp: "callback",
+            jsonpCallback: "list",
+            success: function (data) {
+                console.log(typeof data); // 反序列化为json对象
+                console.log(data.data[1]); // 反序列化为json对象
+                $.each(data.data, function (k, v) {
+                    console.log(k, "--》", v)
+                })
+            }
+        })
+    });
+
+    $("#bnt_del").click(function () {
+        del_id = $("#a_del").attr("obj_id");
+        $.ajax({
+            url: del_id + '/del/',
+            type: 'post',
+            success: function (data) {
+                if (data.status) {
+                    alert(data.msg)
+                } else {
+                    location.href = data.msg;
+                }
+            }
+        })
+    });
+
+</script>
+
+</body>
+</html>

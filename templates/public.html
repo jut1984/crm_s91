@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stark/static/bootstrap/css/bootstrap.min.css">
+<body>
+<h3>公共客户</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>QQ</th>
+                    <th>跟进人</th>
+                </tr></thead>
+                <tbody>
+                    {% for customer in customer_list %}
+                        <tr>
+                        <td>{{ forloop.counter}}</td>
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.qq }}</td>
+                        <td>{{ customer.consultant }}</td>
+                        <td><a href="">跟进记录</a></td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="/stark/static/js/jquery-1.12.4.min.js"></script>
+<script src="/stark/static/js/setupAjax.js"></script>
+<script src="/stark/static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>
